@@ -6,6 +6,21 @@ local timeTrial = 0
 local trialLaunched = false
 local inLocation = false
 
+--time trial--
+
+function StartTrial()
+    if not trialLaunched then
+        trialLaunched = true
+        timeTrial = 0
+        CreateThread(function()
+            while trialLaunched do
+                Citizen.Wait(100)
+                timeTrial = timeTrial + 0.1
+            end
+        end)
+    end
+end
+
 --SCALEFORMS--
 Scaleform = {}
 
@@ -91,7 +106,7 @@ function openMenu()
         Citizen.CreateThread(function()  
             while MenuState do
                 Citizen.Wait(0)
-                DisableControlAction(0, 31, true)
+                DisableControlAction(0, 35, true)
                 DisableControlAction(0, 32, true)
                 DisableControlAction(0, 33, true)
                 DisableControlAction(0, 34, true)
@@ -130,6 +145,7 @@ function openMenu()
                     })]]
                     RageUI.Button(Lang['rent_kart'], nil, { RightLabel = priceTotal .. "$" }, true, {
                         onSelected = function()
+                            main_menu.Closed()
                             TriggerServerEvent('esx_kart:rentKart', priceTotal, Config.Times[selectedTime], Config.KartsDetails[Config.Karts[selectedOption]].string)
                         end
                     })
@@ -170,17 +186,6 @@ CreateThread(function()
     end
 end)
 
-function startTimeTrial()
-    CreateThread(function()
-        timeTrial = 0
-        trialLaunched = true
-        while trialLaunched do
-            Wait(10)
-            timeTrial = timeTrial + 0.01   
-        end
-    end)
-end
-
 function goAtStart()
     local coords = Config.start
     local ped = PlayerPedId()
@@ -206,7 +211,7 @@ end
 
 function startRace()
     print("commence le time trial")
-    local kart = GetVehiclePedIsIn(ped, kart)
+    local kart = GetVehiclePedIsIn(PlayerPedId())
     FreezeEntityPosition(kart, true)
 
     CreateThread(function()
@@ -237,12 +242,15 @@ function startRace()
                 DrawScaleformMovieFullscreen(scale, 255, 255, 255, 255)
             end
         end)
+        Wait(4000)
         showCD = false
     end)
     Wait(3000)
 
     FreezeEntityPosition(kart, false)
-    startTimeTrial()
+    CreateThread(function()
+        StartTrial()
+    end)
 
     --[[CreateThread(function()
         while trialLaunched do 
@@ -267,7 +275,7 @@ function startRace()
             type =4
         end
         local coords = Config.CheckPoints[i]
-        while not IsEntityAtCoord(ped, coords.x, coords.y, coords.z, 5.0, 5.0, 5.0, 0, 1, 0) and inLocation do
+        while not IsEntityAtCoord(PlayerPedId(), coords.x, coords.y, coords.z, 5.0, 5.0, 5.0, 0, 1, 0) and inLocation do
             Wait(0)
             DrawMarker(type, coords.x, coords.y, coords.z + 1.5 , 0.0, 0.0, 0.0, 0, 0.0, 0.0, 3.0, 3.0, 5.0, 190, 190, 0, 50, false, true, 2, true, false, false, false)
         end
@@ -279,7 +287,7 @@ function startRace()
     end
     trialLaunched = false
     PlaySoundFrontend(-1, 'Race_PLACED', 'HUD_AWARDS', true)
-    ESX.ShowNotification(Lang['your_time']..math.round(timeTrial, 3)..Lang['seconds'])
+    ESX.ShowNotification(Lang['your_time']..timeTrial..Lang['seconds'])
     if inLocation then goAtStart() end
 end
 
