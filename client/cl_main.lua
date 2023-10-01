@@ -195,87 +195,92 @@ function goAtStart()
                 if distance <= 1.1 and MenuState == false then 
                     ESX.ShowHelpNotification(Lang['start_trial'])
                     if IsControlJustPressed(0, 51) then 
-                        break
+                        startRace()
                     end
                 end
             end
             Wait(ms)
         end
-        local kart = GetVehiclePedIsIn(ped, kart)
-        FreezeEntityPosition(kart, true)
+    end)
+end
 
-        CreateThread(function()
-            local showCD = true
-            local time = 3
-            local scale = showCountdown(time, 200, 200, 10)
-            PlaySoundFrontend(-1, "3_2_1", "HUD_MINI_GAME_SOUNDSET", true)
-            Citizen.CreateThread(function()
-                while showCD do
-                    Citizen.Wait(1000)
-                    if time > 1 then
-                        time = time - 1
-                        PlaySoundFrontend(-1, "3_2_1", "HUD_MINI_GAME_SOUNDSET", true)
-                        scale = showCountdown(time, 200, 200, 10)
-                    elseif time == 1 then
-                        time = time - 1
-                        PlaySoundFrontend(-1, "GO", "HUD_MINI_GAME_SOUNDSET", true)
-                        scale = showCountdown("GO", 200, 200, 10)
-                    else
-                        showCD = false
-                    end
-                end
-            end)
+function startRace()
+    print("commence le time trial")
+    local kart = GetVehiclePedIsIn(ped, kart)
+    FreezeEntityPosition(kart, true)
 
-            Citizen.CreateThread(function()
-                while showCD do
-                    Citizen.Wait(1)
-                    DrawScaleformMovieFullscreen(scale, 255, 255, 255, 255)
-                end
-            end)
-        end)
-        Wait(3000)
-    
-        FreezeEntityPosition(kart, false)
-        startTimeTrial()
-
-        CreateThread(function()
-            while trialLaunched do 
-                Wait(200)
-                if not IsPedInVehicle(ped, kart) then
-                    local timeToGetIn = 0
-                    ESX.ShowNotification(Lang['get_back'])
-                    while not IsPedInVehicle(ped, kart) do
-                        timeToGetIn = timeToGetIn +1
-                        if timeToGetIn > 10 then
-                            goAtStart()
-                        end
-                        Wait(500)
-                    end
+    CreateThread(function()
+        local showCD = true
+        local time = 3
+        local scale = showCountdown(time, 200, 200, 10)
+        PlaySoundFrontend(-1, "3_2_1", "HUD_MINI_GAME_SOUNDSET", true)
+        Citizen.CreateThread(function()
+            while showCD do
+                Citizen.Wait(1000)
+                if time > 1 then
+                    time = time - 1
+                    PlaySoundFrontend(-1, "3_2_1", "HUD_MINI_GAME_SOUNDSET", true)
+                    scale = showCountdown(time, 200, 200, 10)
+                elseif time == 1 then
+                    time = time - 1
+                    PlaySoundFrontend(-1, "GO", "HUD_MINI_GAME_SOUNDSET", true)
+                    scale = showCountdown("GO", 200, 200, 10)
+                else
+                    showCD = false
                 end
             end
         end)
-        
-        for i = 1, #Config.CheckPoints do
-            local type = 3
-            if i == #Config.CheckPoints then
-                type =4
+
+        Citizen.CreateThread(function()
+            while showCD do
+                Citizen.Wait(1)
+                DrawScaleformMovieFullscreen(scale, 255, 255, 255, 255)
             end
-            local coords = Config.CheckPoints[i]
-            while not IsEntityAtCoord(ped, coords.x, coords.y, coords.z, 5.0, 5.0, 5.0, 0, 1, 0) and inLocation do
-                Wait(0)
-                DrawMarker(type, coords.x, coords.y, coords.z + 1.5 , 0.0, 0.0, 0.0, 0, 0.0, 0.0, 3.0, 3.0, 5.0, 190, 190, 0, 50, false, true, 2, true, false, false, false)
-            end
-            PlaySoundFrontend(-1, "CHECKPOINT_AHEAD", "HUD_MINI_GAME_SOUNDSET", true)
-            if inLocation == false then
-                trialLaunched = false 
-                return
+        end)
+        showCD = false
+    end)
+    Wait(3000)
+
+    FreezeEntityPosition(kart, false)
+    startTimeTrial()
+
+    --[[CreateThread(function()
+        while trialLaunched do 
+            Wait(200)
+            if not IsPedInVehicle(ped, kart) then
+                local timeToGetIn = 0
+                ESX.ShowNotification(Lang['get_back'])
+                while not IsPedInVehicle(ped, kart) do
+                    timeToGetIn = timeToGetIn +1
+                    if timeToGetIn > 10 then
+                        goAtStart()
+                    end
+                    Wait(500)
+                end
             end
         end
-        trialLaunched = false
-        PlaySoundFrontend(-1, 'Race_PLACED', 'HUD_AWARDS', true)
-        ESX.ShowNotification(Lang['your_time']..math.round(timeTrial, 3)..Lang['seconds'])
-        goAtStart()
-    end)
+    end)]]
+    
+    for i = 1, #Config.CheckPoints do
+        local type = 3
+        if i == #Config.CheckPoints then
+            type =4
+        end
+        local coords = Config.CheckPoints[i]
+        while not IsEntityAtCoord(ped, coords.x, coords.y, coords.z, 5.0, 5.0, 5.0, 0, 1, 0) and inLocation do
+            Wait(0)
+            DrawMarker(type, coords.x, coords.y, coords.z + 1.5 , 0.0, 0.0, 0.0, 0, 0.0, 0.0, 3.0, 3.0, 5.0, 190, 190, 0, 50, false, true, 2, true, false, false, false)
+        end
+        PlaySoundFrontend(-1, "CHECKPOINT_AHEAD", "HUD_MINI_GAME_SOUNDSET", true)
+        if inLocation == false then
+            trialLaunched = false 
+            return
+        end
+    end
+    trialLaunched = false
+    PlaySoundFrontend(-1, 'Race_PLACED', 'HUD_AWARDS', true)
+    ESX.ShowNotification(Lang['your_time']..math.round(timeTrial, 3)..Lang['seconds'])
+    if inLocation then goAtStart() end
 end
 
 RegisterNetEvent('esx_kart:clientStartRent')
@@ -294,8 +299,6 @@ AddEventHandler('esx_kart:clientStartRent', function(netID, inMinTime)
         startTimer(vehicle)
         goAtStart()
     end)
-
-
 
 end)
 
