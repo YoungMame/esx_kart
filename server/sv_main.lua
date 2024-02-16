@@ -1,4 +1,5 @@
 ESX = exports["es_extended"]:getSharedObject()
+local Lang = Config.Locales[Config.Lang]
 
 RegisterNetEvent('esx_kart:rentKart')
 
@@ -7,10 +8,14 @@ AddEventHandler('esx_kart:rentKart', function(price, timeInMin, kartHash)
     local xPlayer = ESX.GetPlayerFromId(src)
     if xPlayer.getMoney() < price then return TriggerClientEvent('esx:showNotification', src, Lang['not_enough_money']) end
     xPlayer.removeMoney(price)
-    ESX.OneSync.SpawnVehicle(kartHash, Config.spawnCoords, Config.spawnHeading,properties, function(netID)
-        print(netID)
-        TriggerClientEvent('esx_kart:clientStartRent', src, netID, timeInMin)
-    end)
+    if Config.ESXversion == "new" then
+      ESX.OneSync.SpawnVehicle(kartHash, Config.spawnCoords, Config.spawnHeading,properties, function(netID)
+          print(netID)
+          TriggerClientEvent('esx_kart:clientStartRent', src, netID, timeInMin)
+      end)
+    else
+      TriggerClientEvent('esx_kart:clientStartRent', src, false, timeInMin, kartHash)
+    end
 end)
 
 RegisterNetEvent("esx_kart:webhook", function(timeTrial)

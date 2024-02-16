@@ -293,21 +293,29 @@ function startRace()
 end
 
 RegisterNetEvent('esx_kart:clientStartRent')
-AddEventHandler('esx_kart:clientStartRent', function(netID, inMinTime)
+AddEventHandler('esx_kart:clientStartRent', function(netID, inMinTime, kartHash)
     
     inLocation = true
     local ped = PlayerPedId()
     rentalTimer = inMinTime * 60
-
-    CreateThread(function()
-        while not NetworkDoesEntityExistWithNetworkId(netID) do
-            Wait(1)
-        end
-        local vehicle = NetworkGetEntityFromNetworkId(netID)
-        TaskWarpPedIntoVehicle(PlayerPedId(), vehicle, -1)
-        startTimer(vehicle)
-        goAtStart()
-    end)
+    if netID ~= false then
+        CreateThread(function()
+            while not NetworkDoesEntityExistWithNetworkId(netID) do
+                Wait(1)
+            end
+            local vehicle = NetworkGetEntityFromNetworkId(netID)
+            TaskWarpPedIntoVehicle(PlayerPedId(), vehicle, -1)
+            startTimer(vehicle)
+            goAtStart()
+        end)
+    else
+        print("local")
+        ESX.Game.SpawnVehicle(kartHash, Config.spawnCoords, Config.spawnHeading, function(vehicle)
+            TaskWarpPedIntoVehicle(PlayerPedId(), vehicle, -1)
+            startTimer(vehicle)
+            goAtStart()
+        end)
+    end
 
 end)
 
