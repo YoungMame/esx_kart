@@ -9,7 +9,7 @@ Config.pedHeading = 15.59645652771
 Config.pedHash = 'a_m_y_motox_02'
 
 Config.WebHook = false -- or your webhook
-Config.ESXversion = "old" -- for legacy or "old" for older version
+Config.ESXversion = "new" -- for legacy or "old" for older version
 
 Config.CheckPoints = {
     vector3(-96.983505249023, -2122.6223144531, 15.836974143982),
