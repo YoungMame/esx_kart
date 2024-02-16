@@ -288,6 +288,7 @@ function startRace()
     trialLaunched = false
     PlaySoundFrontend(-1, 'Race_PLACED', 'HUD_AWARDS', true)
     ESX.ShowNotification(Lang['your_time']..timeTrial..Lang['seconds'])
+    TriggerServerEvent("esx_kart:webhook", timeTrial)
     if inLocation then goAtStart() end
 end
 

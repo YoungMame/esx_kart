@@ -7,6 +7,7 @@ Config.start = vector3(-117.96625518799, -2117.7780761719, 15.837563514709)
 Config.pedCoords = vector3(-153.77397155762, -2151.7702636719, 16.705057144165)
 Config.pedHeading = 15.59645652771
 Config.pedHash = 'a_m_y_motox_02'
+Config.WebHook = false -- or your webhook
 
 Config.CheckPoints = {
     vector3(-96.983505249023, -2122.6223144531, 15.836974143982),
